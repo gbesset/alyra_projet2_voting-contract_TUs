@@ -3,7 +3,6 @@ run-name: ${{ github.actor }} Go for CI 🚀
 on: [push]
 jobs:
   Test_github_actions:
-   name: test github actions variables
     runs-on: ubuntu-latest
     steps:
       - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
@@ -17,4 +16,3 @@ jobs:
         run: |
           ls ${{ github.workspace }}
       - run: echo "🍏 This job's status is ${{ job.status }}."
-
