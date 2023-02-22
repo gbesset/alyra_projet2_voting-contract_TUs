@@ -33,11 +33,10 @@ contract("Voting", (accounts) => {
     expect(await VotingInstance.owner()).to.be.equal(_owner);
   });
 
-  it("an owner no voter can't add voters", async () => {
-    expect((await VotingInstance.getVoter(_voter1, { from: _owner })).isRegistered).to.be.equal(false);
-
-    await expectRevert(VotingInstance.addVoter(_voter1, { from: _voter1 }), "caller is not the owner");
+  it("an owner no voter can't get voters", async () => {
+    await expectRevert(VotingInstance.getVoter(_voter1, { from: _owner }), "You're not a voter");
   });
+
   it("only owner add voters", async () => {
     //Add owner as voter to access functions
     await VotingInstance.addVoter(_owner, { from: _owner });

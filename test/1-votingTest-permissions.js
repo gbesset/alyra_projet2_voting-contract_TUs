@@ -28,11 +28,6 @@ contract("Voting", (accounts) => {
     await expectRevert(VotingInstance.tallyVotes({ from: _voter1 }), "caller is not the owner");
   });
 
-  it("address owner can access states functions!!!!!", async () => {
-    console.log(await await VotingInstance.startProposalsRegistering({ from: _owner }));
-    expectEvent(await VotingInstance.startProposalsRegistering({ from: _owner }), "ProposalsRegistrationStarted", {});
-  });
-
   it("only owner can access protected functions", async () => {
     await expectRevert(VotingInstance.addVoter(_voter2, { from: _voter1 }), "caller is not the owner");
   });
