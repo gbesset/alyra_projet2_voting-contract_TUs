@@ -1,8 +1,16 @@
 name: GitHub Actions CI
 run-name: ${{ github.actor }} Go for CI 🚀
-on: [push]
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
 jobs:
-  Test_github_actions:
+  github_actions_test_job:
     runs-on: ubuntu-latest
     steps:
       - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
@@ -16,3 +24,39 @@ jobs:
         run: |
           ls ${{ github.workspace }}
       - run: echo "🍏 This job's status is ${{ job.status }}."
+
+  # lint du code
+
+  run_test_job:
+    runs-on: ubuntu-latest
+    name: Run solidity tests !
+    services:
+      ganache:
+        image: trufflesuite/ganache-cli:v6.12.1
+        ports:
+          - 8545:8545
+          - 8546:8546
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install & setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: "14.x"
+
+      - name: Install dependencies (node & truffle)
+        run: |
+          npm install
+          npm install -g truffle
+
+      - name: Compile Contracts
+        run: truffle compile
+
+      - name: Migrate Contracts
+        run: truffle migrate --reset
+
+      - name: Run Truffle tests
+        run: truffle test
+
+  # code coverage du code
