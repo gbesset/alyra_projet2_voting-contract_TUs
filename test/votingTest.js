@@ -60,7 +60,7 @@ contract("Voting", (accounts) => {
       expect(await VotingInstance.workflowStatus()).to.be.bignumber.equal(_workflowStatus);
     });
 
-    it("contract is instantiated and _owner is owner", async () => {
+    it("smart contract is instantiated and _owner is owner", async () => {
       console.log(
         "    -- contract Voting  deployed at address " +
           (await VotingInstance.address) +
@@ -94,9 +94,7 @@ contract("Voting", (accounts) => {
         await expectRevert(VotingInstance.tallyVotes({ from: _voter1 }), "caller is not the owner");
       });
 
-      it("An address which is owner can access states management functions", async () => {
-        //TODO
-      });
+      // CASE owner is OK => done in functionnal test
 
       it("An address which is not owner but voter can't access addVoter", async () => {
         //await ownerAddVoter(Voter.VOTER_1);
@@ -109,9 +107,7 @@ contract("Voting", (accounts) => {
         await expectRevert(VotingInstance.addVoter(_voter2, { from: _voter1 }), "caller is not the owner");
       });
 
-      it("An address which is owner can access addVoter", async () => {
-        // TODO CAS OU OK
-      });
+      // CASE owner is OK => done in functionnal test
     });
     describe("onlyVoters permissions", () => {
       it("An address which is not voter can't access protected functions : no voter case", async () => {
@@ -128,9 +124,7 @@ contract("Voting", (accounts) => {
         await expectRevert(VotingInstance.setVote(2, { from: _owner }), "You're not a voter");
       });
 
-      it("An address which is voter can access protected functions : voter case", async () => {
-        //TODO CAS ou OK
-      });
+      /// CASE voter is OK => done in functionnal test
     });
 
     /**
@@ -358,6 +352,8 @@ contract("Voting", (accounts) => {
           await expectRevert(VotingInstance.setVote(3, { from: _owner }), "Proposal not found"); // GENESIS bloc
         });
       });
+      describe("todo tailyng recup vote et que ds ce cas", () => {});
+
       describe("Management states event emited", () => {
         it("check each event is emited on worflow change", async () => {
           let tx = await VotingInstance.startProposalsRegistering({ from: _owner });
