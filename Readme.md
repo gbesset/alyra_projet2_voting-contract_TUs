@@ -5,6 +5,7 @@ Vous repartirez du smart contract proposé en correction
 
 Vous devez alors fournir les tests unitaires de votre smart contract Nous n’attendons pas une couverture à 100% du smart contract mais veillez à bien tester les différentes possibilités de retours (event, revert).
 
+---
 ## Mise en place
 
 couverture je pense et espère comlète
@@ -13,12 +14,13 @@ pas été jusqu'à tester les différents permissions en fonctions du workflow s
 
 dans le satte management constrarint pas de verif des events car 
 
+---
 ## Deploiement du contrat
 - Verification valeurs par défaut
 - vérification owner propriétaire
 
 ## Verifications des permissions
- Dans cette partie, seules les restrictions sont testées. Les cas ou cela fonctionne seront traités dans les cas fonctionnels pour moins de code.
+    Dans cette partie, seules les restrictions sont testées. Les cas ou cela fonctionne seront traités dans les cas fonctionnels pour moins de code.
 
 ### Méthodes protégées par onlyOwner
 - un voter non owner ne peut pas  accéder aux méthodes de management de state
@@ -34,15 +36,19 @@ dans le satte management constrarint pas de verif des events car
 ## Test des contraintes de status du workflow
 ###  status RegisteringVoters
 - l'ajout d'un voter ne peut se faire que dans ce status
+- verif fonctionement addVoter (Event et changement effectués)
 - un voter ne peut etre ajouté qu'une fois
 
 ### Status ProposalsRegistrationStarted
 - l'ajout d'une proposition ne peut se faire que dans ce status
+- verif fonctionement addProposal (Event et changement effectués)
 - une proposition ne peut etre vide
 - les propositions commencent a 1, 0 étant GENESIS
   
 ### Status VotingSessionStarted
 - le vote ne peut se faire que dans ce status
+- verif fonctionement setVote avec un voteur (Event et changement effectués)
+- verif fonctionement setVote avec deux voteurs
 - un voter ne peut voter qu'une fois
 - Evenement lorsque la proposition n'est pas trouvée
   
