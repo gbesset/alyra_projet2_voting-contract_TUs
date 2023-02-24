@@ -14,16 +14,6 @@ contract("Voting", (accounts) => {
   //on déclare l'instance
   let VotingInstance;
 
-  /* async function ownerAddVoter(name) {
-    //Gestion à ameliorer avec Typescript en typant le paramètre pour avoir un Voter
-    if (name != 0 || name != 1 || name != 2 || name != 3) {
-      expect(true).to.be.false();
-    }
-    //Add a voter
-    await VotingInstance.addVoter(accounts[name], { from: _owner });
-    expect((await VotingInstance.getVoter(accounts[name], { from: accounts[name] })).isRegistered).to.be.equal(true);
-  }*/
-
   async function ownerAddOwnerAsVoter() {
     //Add owner as voter to access functions & check he is registered
     let tx = await VotingInstance.addVoter(_owner, { from: _owner });
@@ -31,12 +21,6 @@ contract("Voting", (accounts) => {
     expect((await VotingInstance.getVoter(_owner, { from: _owner })).isRegistered).to.be.equal(true);
   }
 
-  async function ownerAddVoter1() {
-    //Add a voter
-    let tx = await VotingInstance.addVoter(_voter1, { from: _owner });
-    expectEvent(tx, "VoterRegistered", { voterAddress: _voter1 });
-    expect((await VotingInstance.getVoter(_voter1, { from: _voter1 })).isRegistered).to.be.equal(true);
-  }
   async function ownerAddVoter(i) {
     if (i == 0 || i == 1 || i == 2 || i == 3) {
       //Add a voter
@@ -63,7 +47,7 @@ contract("Voting", (accounts) => {
 
     it("smart contract is instantiated and _owner is owner", async () => {
       console.log(
-        "    -- contract Voting  deployed at address " +
+        "    --> contract Voting  deployed at address " +
           (await VotingInstance.address) +
           " by address " +
           (await VotingInstance.owner())
@@ -85,7 +69,7 @@ contract("Voting", (accounts) => {
      */
     describe("onlyOwner permissions", () => {
       it("An address which is not owner but voter can't access states management functions", async () => {
-        await ownerAddVoter1();
+        await ownerAddVoter(1);
 
         await expectRevert(VotingInstance.startProposalsRegistering({ from: _voter1 }), "caller is not the owner");
         await expectRevert(VotingInstance.endProposalsRegistering({ from: _voter1 }), "caller is not the owner");
@@ -106,7 +90,7 @@ contract("Voting", (accounts) => {
 
       it("An address which is not owner but voter can't access addVoter", async () => {
         //await ownerAddVoter(Voter.VOTER_1);
-        await ownerAddVoter1();
+        await ownerAddVoter(1);
 
         await expectRevert(VotingInstance.addVoter(_voter2, { from: _voter1 }), "caller is not the owner");
       });
@@ -206,7 +190,7 @@ contract("Voting", (accounts) => {
         await ownerAddOwnerAsVoter();
 
         //Add a voter
-        await ownerAddVoter1();
+        await ownerAddVoter(1);
 
         //prepare state to ProposalsRegistrationStarted
         //------- Not allowed on RegisteringVoters state
@@ -278,6 +262,35 @@ contract("Voting", (accounts) => {
         expect(prop1.voteCount).to.be.bignumber.equal(new BN(0));
         expect(prop2.description).to.be.equal(_proposal2);
         expect(prop2.voteCount).to.be.bignumber.equal(new BN(0));
+      });
+
+      it("addProposal should add 10 proposals", async () => {
+        //Un seul element dans le tableau : Genesis puis Exception
+        //genesis
+        const propGenesis = await VotingInstance.getOneProposal(0, { from: _voter1 });
+        expect(propGenesis.description).to.be.equal(_proposalGenesis);
+        expect(propGenesis.voteCount).to.be.bignumber.equal(new BN(0));
+
+        //exception
+        await expectRevert.unspecified(VotingInstance.getOneProposal(1, { from: _voter1 }));
+
+        await VotingInstance.addProposal(_proposal, { from: _voter1 });
+        await VotingInstance.addProposal(_proposal, { from: _voter1 });
+        await VotingInstance.addProposal(_proposal, { from: _voter1 });
+        await VotingInstance.addProposal(_proposal, { from: _voter1 });
+        await VotingInstance.addProposal(_proposal, { from: _voter1 });
+        await VotingInstance.addProposal(_proposal, { from: _voter1 });
+        await VotingInstance.addProposal(_proposal, { from: _voter1 });
+        await VotingInstance.addProposal(_proposal, { from: _voter1 });
+        await VotingInstance.addProposal(_proposal2, { from: _voter1 });
+
+        //the last element is the proposal2 after: exception
+        const prop = await VotingInstance.getOneProposal(9, { from: _voter1 });
+        expect(prop.description).to.be.equal(_proposal2);
+        expect(prop.voteCount).to.be.bignumber.equal(new BN(0));
+
+        //exception
+        await expectRevert.unspecified(VotingInstance.getOneProposal(10, { from: _voter1 }));
       });
     });
 
@@ -394,7 +407,64 @@ contract("Voting", (accounts) => {
         await expectRevert(VotingInstance.setVote(3, { from: _owner }), "Proposal not found"); // GENESIS bloc
       });
     });
-    describe("todo tailyng recup vote et que ds ce cas", () => {});
+    describe("VotingSessionEnded state", () => {
+      const _proposal = "new awesome propsal for voting";
+      const _proposal2 = "another one";
+
+      beforeEach(async function () {
+        VotingInstance = await Voting.new();
+
+        // define the owner as voter
+        await ownerAddOwnerAsVoter();
+
+        //Add voters
+        await ownerAddVoter(1);
+        await ownerAddVoter(2);
+        await ownerAddVoter(3);
+
+        //Prepare State to VotingSessionStarted and add some proposals
+        // check also not allowed ont thoses states
+        await expectRevert(VotingInstance.tallyVotes({ from: _owner }), "Current status is not voting session ended");
+
+        await VotingInstance.startProposalsRegistering({ from: _owner });
+        await expectRevert(VotingInstance.tallyVotes({ from: _owner }), "Current status is not voting session ended");
+        //Add proposals for test
+        await VotingInstance.addProposal(_proposal, { from: _voter1 });
+        await VotingInstance.addProposal(_proposal2, { from: _voter1 });
+
+        await VotingInstance.endProposalsRegistering({ from: _owner });
+        await expectRevert(VotingInstance.tallyVotes({ from: _owner }), "Current status is not voting session ended");
+
+        await VotingInstance.startVotingSession({ from: _owner });
+        //Add some votes
+        let tx = await VotingInstance.setVote(2, { from: _voter1 });
+        expectEvent(tx, "Voted", { voter: _voter1, proposalId: new BN(2) });
+        tx = await VotingInstance.setVote(2, { from: _voter2 });
+        expectEvent(tx, "Voted", { voter: _voter2, proposalId: new BN(2) });
+
+        //rpepare state
+        tx = await VotingInstance.endVotingSession({ from: _owner });
+      });
+      it("owner can tallyVotes only on VotingSessionEnded state", async () => {
+        //OK
+        let tx = await VotingInstance.tallyVotes({ from: _owner });
+
+        // Not allowed on other states
+        await expectRevert(VotingInstance.tallyVotes({ from: _owner }), "Current status is not voting session ended");
+      });
+
+      it("tallyVote function onchain modifications", async () => {
+        //---- voter can vote on status and variables are set
+        // before vote
+        let winningId = await VotingInstance.winningProposalID.call();
+        expect(winningId).to.be.bignumber.equal(new BN(0));
+
+        let tx = await VotingInstance.tallyVotes({ from: _owner });
+
+        winningId = await VotingInstance.winningProposalID.call();
+        expect(winningId).to.be.bignumber.equal(new BN(2));
+      });
+    });
 
     describe("Management states event emited", () => {
       it("check each event is emited on worflow change", async () => {
@@ -421,11 +491,118 @@ contract("Voting", (accounts) => {
    */
   describe("Smart contract workflow", () => {
     const _proposals = [["Café"], ["Café + Sucre", "Thé"], [], ["coca", "Thé"]];
-    describe("1", () => {});
-    describe("1", () => {});
-    describe("1", () => {});
-    describe("1", () => {});
-    describe("1", () => {});
+
+    beforeEach(async function () {
+      VotingInstance = await Voting.new();
+    });
+
+    it("Scenario 1 with 3 voters no tie", async () => {
+      //Add voters
+      await ownerAddVoter(1);
+      await ownerAddVoter(2);
+      await ownerAddVoter(3);
+
+      //Start proposals
+      await VotingInstance.startProposalsRegistering({ from: _owner });
+
+      await VotingInstance.addProposal(_proposals[3][0], { from: _voter3 });
+      await VotingInstance.addProposal(_proposals[1][0], { from: _voter1 });
+      await VotingInstance.addProposal(_proposals[1][1], { from: _voter1 });
+
+      await VotingInstance.endProposalsRegistering({ from: _owner });
+      await VotingInstance.startVotingSession({ from: _owner });
+
+      //Add some votes
+      let tx = await VotingInstance.setVote(1, { from: _voter1 });
+      expectEvent(tx, "Voted", { voter: _voter1, proposalId: new BN(1) });
+      tx = await VotingInstance.setVote(2, { from: _voter2 });
+      expectEvent(tx, "Voted", { voter: _voter2, proposalId: new BN(2) });
+      tx = await VotingInstance.setVote(1, { from: _voter3 });
+      expectEvent(tx, "Voted", { voter: _voter3, proposalId: new BN(1) });
+
+      //pepare state
+      tx = await VotingInstance.endVotingSession({ from: _owner });
+      tx = await VotingInstance.tallyVotes({ from: _owner });
+
+      //check the proposal 4 (_voter2 proposal1)
+      winningId = await VotingInstance.winningProposalID.call();
+      expect(winningId).to.be.bignumber.equal(new BN(1));
+    });
+    it("Scenario 1 with 3 voters and owner voter no tie", async () => {
+      // define the owner as voter
+      await ownerAddOwnerAsVoter();
+
+      //Add voters
+      await ownerAddVoter(1);
+      await ownerAddVoter(2);
+      await ownerAddVoter(3);
+
+      //Start proposals
+      await VotingInstance.startProposalsRegistering({ from: _owner });
+
+      await VotingInstance.addProposal(_proposals[1][0], { from: _voter1 });
+      await VotingInstance.addProposal(_proposals[3][0], { from: _voter3 });
+      await VotingInstance.addProposal(_proposals[0][0], { from: _owner });
+      await VotingInstance.addProposal(_proposals[1][1], { from: _voter1 });
+
+      await VotingInstance.endProposalsRegistering({ from: _owner });
+      await VotingInstance.startVotingSession({ from: _owner });
+
+      //Add some votes
+      let tx = await VotingInstance.setVote(4, { from: _voter1 });
+      expectEvent(tx, "Voted", { voter: _voter1, proposalId: new BN(4) });
+      tx = await VotingInstance.setVote(2, { from: _owner });
+      expectEvent(tx, "Voted", { voter: _owner, proposalId: new BN(2) });
+      tx = await VotingInstance.setVote(3, { from: _voter2 });
+      expectEvent(tx, "Voted", { voter: _voter2, proposalId: new BN(3) });
+      tx = await VotingInstance.setVote(4, { from: _voter3 });
+      expectEvent(tx, "Voted", { voter: _voter3, proposalId: new BN(4) });
+
+      //pepare state
+      tx = await VotingInstance.endVotingSession({ from: _owner });
+      tx = await VotingInstance.tallyVotes({ from: _owner });
+
+      //check the proposal 4 (_voter2 proposal1)
+      winningId = await VotingInstance.winningProposalID.call();
+      expect(winningId).to.be.bignumber.equal(new BN(4));
+    });
+    it("Scenario 3 with tie, should take the first one", async () => {
+      // define the owner as voter
+      await ownerAddOwnerAsVoter();
+
+      //Add voters
+      await ownerAddVoter(1);
+      await ownerAddVoter(2);
+      await ownerAddVoter(3);
+
+      //Start proposals
+      await VotingInstance.startProposalsRegistering({ from: _owner });
+
+      await VotingInstance.addProposal(_proposals[1][0], { from: _voter1 });
+      await VotingInstance.addProposal(_proposals[3][0], { from: _voter3 });
+      await VotingInstance.addProposal(_proposals[0][0], { from: _owner });
+      await VotingInstance.addProposal(_proposals[1][1], { from: _voter1 });
+
+      await VotingInstance.endProposalsRegistering({ from: _owner });
+      await VotingInstance.startVotingSession({ from: _owner });
+
+      //Add some votes
+      let tx = await VotingInstance.setVote(4, { from: _voter1 });
+      expectEvent(tx, "Voted", { voter: _voter1, proposalId: new BN(4) });
+      tx = await VotingInstance.setVote(4, { from: _owner });
+      expectEvent(tx, "Voted", { voter: _owner, proposalId: new BN(4) });
+      tx = await VotingInstance.setVote(3, { from: _voter2 });
+      expectEvent(tx, "Voted", { voter: _voter2, proposalId: new BN(3) });
+      tx = await VotingInstance.setVote(3, { from: _voter3 });
+      expectEvent(tx, "Voted", { voter: _voter3, proposalId: new BN(3) });
+
+      //pepare state
+      tx = await VotingInstance.endVotingSession({ from: _owner });
+      tx = await VotingInstance.tallyVotes({ from: _owner });
+
+      //check the proposal 3 (_voter2 proposal1)
+      winningId = await VotingInstance.winningProposalID.call();
+      expect(winningId).to.be.bignumber.equal(new BN(3));
+    });
   });
 });
-// oublié les events

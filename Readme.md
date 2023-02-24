@@ -5,16 +5,21 @@ Vous repartirez du smart contract proposé en correction
 
 Vous devez alors fournir les tests unitaires de votre smart contract Nous n’attendons pas une couverture à 100% du smart contract mais veillez à bien tester les différentes possibilités de retours (event, revert).
 
----
+  
+<br/>
+
 ## Mise en place
 
-couverture je pense et espère comlète
 
-pas été jusqu'à tester les différents permissions en fonctions du workflow status car le modifier est délclenché avant toute chose et donc couvre pour moi tous les cas
+- CI intégrée sur github pages
+- Couverture de code complète, et code coverage récupéré avec Hardat
 
-dans le satte management constrarint pas de verif des events car 
 
----
+Au vu de la structure des fonctions (modifier et require) j'ai commencé par verifier toutes les permissions et droits en testant tous les cas qui doivent échouer avant de tester le cas fonctionnel avec verification de l'emission de l'event et des modifications des variables associées
+
+<br>
+
+# Tests effectués
 ## Deploiement du contrat
 - Verification valeurs par défaut
 - vérification owner propriétaire
@@ -52,7 +57,7 @@ dans le satte management constrarint pas de verif des events car
 - un voter ne peut voter qu'une fois
 - Evenement lorsque la proposition n'est pas trouvée
   
-### TODO tayling
+### Status  VotingSessionEnded
 - l'ajout d'un voter ne peut se faire que dans ce status
 
 ### Emission des Evenements
@@ -64,12 +69,13 @@ dans le satte management constrarint pas de verif des events car
 - scénario avec égalité sur un vote
 
 
-# Annexxe
+# Annexe
 ## tests
-Screenshot console
+![Screenshot execution tests](Documentation/tests_screenshot.png)
 
 ## Fees
+tableau fees
 
 ## Coverage
-
+screen coverage
 
