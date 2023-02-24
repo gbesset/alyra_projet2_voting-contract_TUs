@@ -12,7 +12,7 @@ Vous devez alors fournir les tests unitaires de votre smart contract Nous n’at
 
 
 - CI intégrée sur github pages
-- Couverture de code complète, et code coverage récupéré avec Hardat
+- Couverture de code je pense complète. Il ne me reste plus qu'a l'intégrer dans Hardat pour le rapatrier.
 
 
 Au vu de la structure des fonctions (modifier et require) j'ai commencé par verifier toutes les permissions et droits en testant tous les cas qui doivent échouer avant de tester le cas fonctionnel avec verification de l'emission de l'event et des modifications des variables associées
@@ -78,5 +78,5 @@ Au vu de la structure des fonctions (modifier et require) j'ai commencé par ver
 
 
 ## Coverage
-screen coverage
+TODO integrate coverage
 

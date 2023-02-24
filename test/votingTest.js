@@ -36,8 +36,8 @@ contract("Voting", (accounts) => {
   describe("Smart contract Deploiement", () => {
     beforeEach(async function () {
       // on crée une instance a chaque fois. new() pas deploy().
-      VotingInstance = await Voting.new();
-      //identique à await Voting.new({from: _owner});
+      VotingInstance = await Voting.new({ from: _owner });
+      //identique à await Voting.new();
     });
 
     it("smart contract is instantiated and default values are defined", async () => {
@@ -61,7 +61,7 @@ contract("Voting", (accounts) => {
    */
   describe("Smart contract Permissions", () => {
     beforeEach(async function () {
-      VotingInstance = await Voting.new();
+      VotingInstance = await Voting.new({ from: _owner });
     });
 
     /**
@@ -125,7 +125,7 @@ contract("Voting", (accounts) => {
    */
   describe("State Management Constraints", () => {
     beforeEach(async function () {
-      VotingInstance = await Voting.new();
+      VotingInstance = await Voting.new({ from: _owner });
 
       // define the owner as voter
       await ownerAddOwnerAsVoter();
@@ -184,7 +184,7 @@ contract("Voting", (accounts) => {
       const _proposal2 = "another one";
 
       beforeEach(async function () {
-        VotingInstance = await Voting.new();
+        VotingInstance = await Voting.new({ from: _owner });
 
         // define the owner as voter
         await ownerAddOwnerAsVoter();
@@ -299,7 +299,7 @@ contract("Voting", (accounts) => {
       const _proposal2 = "another one";
 
       beforeEach(async function () {
-        VotingInstance = await Voting.new();
+        VotingInstance = await Voting.new({ from: _owner });
 
         // define the owner as voter
         await ownerAddOwnerAsVoter();
@@ -403,7 +403,7 @@ contract("Voting", (accounts) => {
 
       it("voter vote and proposal not found ", async () => {
         //proposal not found
-        //await expectRevert(VotingInstance.setVote(-1, { from: _owner }), "Proposal not found"); //marche pas -1
+        //await expectRevert.unspecified(VotingInstance.setVote(-1, { from: _owner }), "Proposal not found"); //marche pas -1
         await expectRevert(VotingInstance.setVote(3, { from: _owner }), "Proposal not found"); // GENESIS bloc
       });
     });
@@ -412,7 +412,7 @@ contract("Voting", (accounts) => {
       const _proposal2 = "another one";
 
       beforeEach(async function () {
-        VotingInstance = await Voting.new();
+        VotingInstance = await Voting.new({ from: _owner });
 
         // define the owner as voter
         await ownerAddOwnerAsVoter();
@@ -493,7 +493,7 @@ contract("Voting", (accounts) => {
     const _proposals = [["Café"], ["Café + Sucre", "Thé"], [], ["coca", "Thé"]];
 
     beforeEach(async function () {
-      VotingInstance = await Voting.new();
+      VotingInstance = await Voting.new({ from: _owner });
     });
 
     it("Scenario 1 with 3 voters no tie", async () => {
