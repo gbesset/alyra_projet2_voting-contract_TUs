@@ -71,10 +71,11 @@ Au vu de la structure des fonctions (modifier et require) j'ai commencé par ver
 
 # Annexe
 ## tests
-![Screenshot execution tests](Documentation/tests_screenshot.png)
+![Screenshot execution tests](Documentation/tests_screenshot_with_gas.png)
 
-## Fees
-tableau fees
+## Gas Reporter
+![Screenshot gas reporter](Documentation/test_gas_reporter.png)
+
 
 ## Coverage
 screen coverage
