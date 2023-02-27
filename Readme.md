@@ -12,10 +12,14 @@ Vous devez alors fournir les tests unitaires de votre smart contract Nous n’at
 
 
 - CI intégrée sur github pages
-- Couverture de code je pense complète. Il ne me reste plus qu'a l'intégrer dans Hardat pour le rapatrier.
+- Couverture de code 100% réalisée sur un projet hardhat.
+  
+Ce qui m'a permis d'ailleurs de déceller que j'avais oublié 4 test de require. Code Coverage 100%, line 100% mais Branch 92%. (bizare de ne pas avoir eu un code coverage <100%...)
 
 
 Au vu de la structure des fonctions (modifier et require) j'ai commencé par verifier toutes les permissions et droits en testant tous les cas qui doivent échouer avant de tester le cas fonctionnel avec verification de l'emission de l'event et des modifications des variables associées
+
+Tous les tests ont été mis dans un seul fichier comme demmandé. En vrai, j'aurai peut être découpé en Permissions / Droits / Workflow pour plus de lisibilité
 
 <br>
 
@@ -63,6 +67,9 @@ Au vu de la structure des fonctions (modifier et require) j'ai commencé par ver
 ### Emission des Evenements
 - vérification de l'émission d'évènement à chaque changement d'état
 
+### Verification des status des Evenements
+- vérification d status courant dans les changements de status 
+  
 ## test fonctionnels
 - verification d'un scénario avec plusieurs voters ou l'owner n'est pas voter et verification du gagnant
 - scénario similaire avec le owner voter
@@ -78,5 +85,6 @@ Au vu de la structure des fonctions (modifier et require) j'ai commencé par ver
 
 
 ## Coverage
-TODO integrate coverage
+Mise en place du codeCoverage du fichier dans un projet Hardhat
+![Screenshot Code Coverage](Documentation/code_coverage_hardhat.png)
 

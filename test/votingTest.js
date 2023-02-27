@@ -484,6 +484,28 @@ contract('Voting', accounts => {
         expectEvent(tx, 'WorkflowStatusChange', { previousStatus: new BN(4), newStatus: new BN(5) });
       });
     });
+    describe('Management states check require on status', () => {
+      it('check each status is checked on states management functions', async () => {
+        await expectRevert(
+          VotingInstance.endProposalsRegistering({ from: _owner }),
+          'Registering proposals havent started yet',
+        );
+        await expectRevert(
+          VotingInstance.startVotingSession({ from: _owner }),
+          'Registering proposals phase is not finished',
+        );
+        await expectRevert(VotingInstance.endVotingSession({ from: _owner }), 'Voting session havent started yet');
+        await expectRevert(VotingInstance.tallyVotes({ from: _owner }), 'Current status is not voting session ended');
+
+        let tx = await VotingInstance.startProposalsRegistering({ from: _owner });
+        expectEvent(tx, 'WorkflowStatusChange', { previousStatus: new BN(0), newStatus: new BN(1) });
+
+        await expectRevert(
+          VotingInstance.startProposalsRegistering({ from: _owner }),
+          'Registering proposals cant be started now',
+        );
+      });
+    });
   });
 
   /**
